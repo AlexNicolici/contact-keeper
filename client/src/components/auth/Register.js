@@ -1,6 +1,11 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
+import AlertContext from "../../context/alert/AlertContext";
 
 function Register() {
+  const alertContext = useContext(AlertContext);
+
+  const { setAlert } = alertContext;
+
   const [user, setUser] = useState({
     name: "",
     email: "",
@@ -19,7 +24,13 @@ function Register() {
   const onSubmit = (e) => {
     e.preventDefault();
 
-    console.log("Register submit");
+    if (name === "" || email === "" || password === "") {
+      setAlert("Please enter all fields", "danger");
+    } else if (password !== password2) {
+      setAlert("Password don't match!");
+    } else {
+      console.log("Register submit");
+    }
   };
 
   return (
@@ -31,12 +42,24 @@ function Register() {
       <form onSubmit={onSubmit}>
         <div className="form-group">
           <label htmlFor="name">Name</label>
-          <input type="text" name="name" value={name} onChange={onChange} />
+          <input
+            type="text"
+            name="name"
+            value={name}
+            onChange={onChange}
+            required
+          />
         </div>
 
         <div className="form-group">
           <label htmlFor="email">Email Address</label>
-          <input type="email" name="email" value={email} onChange={onChange} />
+          <input
+            type="email"
+            name="email"
+            value={email}
+            onChange={onChange}
+            required
+          />
         </div>
 
         <div className="form-group">
@@ -46,6 +69,8 @@ function Register() {
             name="password"
             value={password}
             onChange={onChange}
+            required
+            minLength="6"
           />
         </div>
 
@@ -56,14 +81,14 @@ function Register() {
             name="password2"
             value={password2}
             onChange={onChange}
+            required
+            minLength="6"
           />
         </div>
 
-        <input
-          type="submit"
-          value="Register"
-          className="btn btn-primary btn-block"
-        />
+        <button type={onSubmit} className="btn btn-primary btn-block">
+          Register
+        </button>
       </form>
     </div>
   );

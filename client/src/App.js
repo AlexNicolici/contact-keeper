@@ -9,25 +9,30 @@ import AuthState from "./context/auth/AuthState";
 import Register from "./components/auth/Register";
 import Login from "./components/auth/Login";
 import NotFound from "./components/pages/NotFound";
+import AlertState from "./context/alert/AlertState";
+import Alerts from "./components/layout/Alerts";
 
 const App = () => {
   return (
     <AuthState>
       <ContactState>
-        <BrowserRouter>
-          <Fragment>
-            <Navbar />
-            <div className="container">
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </div>
-          </Fragment>
-        </BrowserRouter>
+        <AlertState>
+          <BrowserRouter>
+            <Fragment>
+              <Navbar />
+              <div className="container">
+                <Alerts />
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/register" element={<Register />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </div>
+            </Fragment>
+          </BrowserRouter>
+        </AlertState>
       </ContactState>
     </AuthState>
   );
