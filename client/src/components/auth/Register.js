@@ -1,10 +1,27 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import AlertContext from "../../context/alert/AlertContext";
+import AuthContext from "../../context/auth/AuthContext";
+import { useNavigate } from "react-router-dom";
 
-function Register() {
+function Register(props) {
   const alertContext = useContext(AlertContext);
+  const authContext = useContext(AuthContext);
+  const navigate = useNavigate();
 
   const { setAlert } = alertContext;
+  const { register, error, clearErrors, isAuthenticated } = authContext;
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/");
+    }
+
+    if (error === "User already exists!") {
+      setAlert(error, "danger");
+      clearErrors();
+    }
+    // eslint-disable-next-line
+  }, [error, isAuthenticated, props.history]);
 
   const [user, setUser] = useState({
     name: "",
@@ -29,7 +46,11 @@ function Register() {
     } else if (password !== password2) {
       setAlert("Password don't match!");
     } else {
-      console.log("Register submit");
+      register({
+        name,
+        email,
+        password,
+      });
     }
   };
 
@@ -86,9 +107,11 @@ function Register() {
           />
         </div>
 
-        <button type={onSubmit} className="btn btn-primary btn-block">
-          Register
-        </button>
+        <input
+          type="submit"
+          value="Register"
+          className="btn btn-primary btn-block"
+        />
       </form>
     </div>
   );
