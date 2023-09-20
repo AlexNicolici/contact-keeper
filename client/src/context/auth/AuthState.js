@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useContext } from "react";
 import { useReducer } from "react";
 import axios from "axios";
 import AuthContext from "./AuthContext";
@@ -14,8 +14,12 @@ import {
   LOGOUT,
   CLEAR_ERRORS,
 } from "../types";
+import AlertContext from "../alert/AlertContext";
 
 const AuthState = (props) => {
+  const alertContext = useContext(AlertContext);
+  const { setAlert } = alertContext;
+
   const initialState = {
     token: localStorage.getItem("token"),
     isAuthenticated: null,
@@ -37,6 +41,8 @@ const AuthState = (props) => {
         payload: res.data,
       });
     } catch (err) {
+      const errorMessage = err.response.data.msg;
+      setAlert(errorMessage, "danger");
       dispatch({ type: AUTH_ERROR });
     }
   };
@@ -51,6 +57,7 @@ const AuthState = (props) => {
 
     try {
       const res = await axios.post("/api/users", formData, config);
+      console.log("ttest", res.data);
       dispatch({
         type: REGISTER_SUCCESS,
         payload: res.data,
@@ -58,9 +65,11 @@ const AuthState = (props) => {
 
       loadUser();
     } catch (err) {
+      const errorMessage = err.response.data.msg;
+      setAlert(errorMessage, "danger");
       dispatch({
         type: REGISTER_FAIL,
-        payload: err.response.data.msg,
+        payload: errorMessage,
       });
     }
   };
@@ -72,10 +81,11 @@ const AuthState = (props) => {
   const logout = () => console.log("logout");
 
   // Clear Errors
-  const clearErrors = () =>
+  const clearErrors = useCallback(() => {
     dispatch({
       type: CLEAR_ERRORS,
     });
+  }, []);
 
   return (
     <AuthContext.Provider
