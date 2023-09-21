@@ -1,4 +1,4 @@
-import React, { useCallback, useContext } from "react";
+import React, { useCallback, useContext, useEffect } from "react";
 import { useReducer } from "react";
 import axios from "axios";
 import AuthContext from "./AuthContext";
@@ -17,11 +17,12 @@ import {
 import AlertContext from "../alert/AlertContext";
 
 const AuthState = (props) => {
+  const token = localStorage.getItem("token");
   const alertContext = useContext(AlertContext);
   const { setAlert } = alertContext;
 
   const initialState = {
-    token: localStorage.getItem("token"),
+    token: token,
     isAuthenticated: null,
     loading: true,
     user: null,
@@ -31,9 +32,7 @@ const AuthState = (props) => {
   const [state, dispatch] = useReducer(AuthReducer, initialState);
 
   // Load User
-  const loadUser = async () => {
-    setAuthToken(localStorage.token);
-
+  const loadUser = useCallback(async () => {
     try {
       const res = await axios.get("/api/auth");
       dispatch({
@@ -45,7 +44,7 @@ const AuthState = (props) => {
       setAlert(errorMessage, "danger");
       dispatch({ type: AUTH_ERROR });
     }
-  };
+  }, [setAlert]);
 
   // Register User
   const register = async (formData) => {
@@ -57,13 +56,12 @@ const AuthState = (props) => {
 
     try {
       const res = await axios.post("/api/users", formData, config);
-      console.log("ttest", res.data);
+
+      setAuthToken(res.data.token);
       dispatch({
         type: REGISTER_SUCCESS,
         payload: res.data,
       });
-
-      loadUser();
     } catch (err) {
       const errorMessage = err.response.data.msg;
       setAlert(errorMessage, "danger");
@@ -75,10 +73,30 @@ const AuthState = (props) => {
   };
 
   // Login User
-  const login = () => console.log("login");
+  const login = async (formData) => {
+    try {
+      const res = await axios.post("/api/auth", formData);
+
+      setAuthToken(res.data.token);
+      dispatch({
+        type: LOGIN_SUCCESS,
+        payload: res.data,
+      });
+    } catch (err) {
+      const errorMessage = err.response.data.msg;
+      setAlert(errorMessage, "danger");
+      dispatch({
+        type: LOGIN_FAIL,
+        payload: errorMessage,
+      });
+    }
+  };
 
   // Logout
-  const logout = () => console.log("logout");
+  const logout = () =>
+    dispatch({
+      type: LOGOUT,
+    });
 
   // Clear Errors
   const clearErrors = useCallback(() => {
@@ -86,6 +104,12 @@ const AuthState = (props) => {
       type: CLEAR_ERRORS,
     });
   }, []);
+
+  useEffect(() => {
+    if (token) {
+      loadUser();
+    }
+  }, [token, loadUser]);
 
   return (
     <AuthContext.Provider
