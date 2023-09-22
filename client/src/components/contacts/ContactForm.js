@@ -3,6 +3,7 @@ import ContactContext from "../../context/contact/ContactContext";
 
 function ContactForm() {
   const contactContext = useContext(ContactContext);
+  const [errorMessage, setErrorMessage] = useState(true);
 
   const { addContact, current, clearCurrent, updateContact } = contactContext;
 
@@ -35,11 +36,24 @@ function ContactForm() {
   const onSubmit = (e) => {
     e.preventDefault();
 
+    if (!name || !email || !phone) {
+      setErrorMessage("You can't add a contact with empty fields!");
+      return;
+    }
+
     if (current === null) {
       addContact(contact);
     } else {
       updateContact(contact);
     }
+
+    setContact({
+      name: "",
+      email: "",
+      phone: "",
+      type: "personal",
+    });
+    setErrorMessage(true);
   };
 
   const clearAll = (e) => {
@@ -94,11 +108,14 @@ function ContactForm() {
       />
       <label htmlFor="professional">Professional</label>
       <div>
-        <input
-          type="submit"
-          value={current ? "Update Contact" : "Add Contact"}
-          className="btn btn-primary btn-block"
-        />
+        {errorMessage && (
+          <input
+            type="submit"
+            value={current ? "Update Contact" : "Add Contact"}
+            className="btn btn-primary btn-block"
+          />
+        )}{" "}
+        {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
       </div>
       {current && (
         <div>
