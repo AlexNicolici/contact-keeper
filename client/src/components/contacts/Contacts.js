@@ -1,4 +1,4 @@
-import React, { Fragment, useContext, useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import ContactItem from "./ContactItem";
 import ContactContext from "../../context/contact/ContactContext";
 import Spinner from "../layout/Spinner";
